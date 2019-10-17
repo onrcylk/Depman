@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Data.Entity;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
@@ -15,6 +16,7 @@ namespace Depman
 {
     public partial class MainForm : Form
     {
+        
         TableLayoutPanel activePanel;
         Button activeButton;
         string activeIcon;
@@ -26,7 +28,6 @@ namespace Depman
             InitializeComponent();
             ActivePanel(tlpProjects, btnProjects, "icons8_group_of_projects_25");
             ctx = new DepmanContext();
-            dgvQuestions.DataSource = ctx.Question.ToList();
         }
 
         private void ActivePanel(TableLayoutPanel panel, Button button, string icon)
@@ -75,6 +76,7 @@ namespace Depman
 
         private void BtnProjects_Click(object sender, EventArgs e)
         {
+            
             ActivePanel(tlpProjects, btnProjects, "icons8_group_of_projects_25");
         }
 
@@ -116,6 +118,7 @@ namespace Depman
 
         private void BtnQuestions_Click(object sender, EventArgs e)
         {
+            dgvQuestions.AutoGenerateColumns = false;
             ActivePanel(tlpQuestions, btnQuestions, "icons8_questions_25");
         }
 
@@ -138,7 +141,7 @@ namespace Depman
 
         private void txtAddQuestion_KeyPress(object sender, KeyPressEventArgs e)
         {
-   
+
 
         }
 
@@ -146,10 +149,83 @@ namespace Depman
         {
             if (e.KeyCode == Keys.Enter)
             {
+            string question = txtAddQuestion.Text.Trim();
+
+                if (string.IsNullOrWhiteSpace(question))
+                {
+                    MessageBox.Show("Soru girmediniz!");
+                    return;
+                }
                 ctx.Question.Add(new Question { QuestionTitle = txtAddQuestion.Text });
                 ctx.SaveChanges();
-                dgvQuestions.DataSource = ctx.Question.ToList();
+                ListQuestions();
             }
         }
+
+
+        private void DgvQuestions_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Delete && dgvQuestions.SelectedRows.Count > 0)
+            {
+                Question question = (Question)dgvQuestions.SelectedRows[0].DataBoundItem;
+                ctx.Question.Remove(question);
+                ctx.SaveChanges();
+                //ctx.Question.SqlQuery<ReadOnlyAttribute>("SELECT ").ToList();
+                ListQuestions();
+
+            }
+        }
+        private void ListQuestions()
+        {
+            dgvQuestions.DataSource = ctx.Question.ToList();
+
+        }
+
+        private void DgvDepartments_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            int selectarea = dgvQuestions.SelectedCells[0].RowIndex;
+            string question = dgvQuestions.Rows[selectarea].Cells[0].Value.ToString();
+            txtAddDeparment.Text = question;
+        }
+
+        private void TxtAddQuestion_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void PbProfilePicture_Click(object sender, EventArgs e)
+        {
+
+        }
+           
+            
+
+        private void Button32_Click(object sender, EventArgs e)
+        {
+            
+        }
+
+        private void MainForm_Load(object sender, EventArgs e)
+        {
+        }
+
+        private void PbProfilePicture_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            tlpProfile.Visible = false;
+        }
+
+        private void Button36_Click(object sender, EventArgs e)
+        {
+            ActivePanel(tlpProfile, button36, "icons8_business_report_25");
+
+        }
+
+        private void PbProfilePicture_DoubleClick(object sender, EventArgs e)
+        {
+            ActivePanel(tlpProjects, btnProjects, "icons8_group_of_projects_25");
+        }
     }
+
 }
+
+
